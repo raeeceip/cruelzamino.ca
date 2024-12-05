@@ -1,171 +1,7 @@
-// src/components/Details.jsx
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import styled from "styled-components";
 import { X, Share, ArrowLeft, ArrowRight } from "lucide-react";
 import { useKeyPress } from "../hooks/useKeyPress";
-
-const Overlay = styled(motion.div)`
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	background: rgba(0, 0, 0, 0.95);
-	z-index: 1000;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 20px;
-`;
-
-const Container = styled(motion.div)`
-	width: 100%;
-	max-width: 1200px;
-	height: 90vh;
-	background: #1a1a1a;
-	border-radius: 20px;
-	overflow: hidden;
-	position: relative;
-	display: grid;
-	grid-template-columns: 1fr;
-	grid-template-rows: auto 1fr;
-
-	@media (min-width: 768px) {
-		grid-template-columns: 1.2fr 1fr;
-		grid-template-rows: 1fr;
-	}
-`;
-
-const ImageSection = styled.div`
-	position: relative;
-	background: #111;
-	overflow: hidden;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	img {
-		max-width: 100%;
-		max-height: 100%;
-		object-fit: contain;
-	}
-`;
-
-const InfoSection = styled.div`
-	padding: 2rem;
-	overflow-y: auto;
-	color: white;
-	display: flex;
-	flex-direction: column;
-	gap: 1.5rem;
-
-	&::-webkit-scrollbar {
-		width: 8px;
-	}
-
-	&::-webkit-scrollbar-track {
-		background: #111;
-	}
-
-	&::-webkit-scrollbar-thumb {
-		background: #333;
-		border-radius: 4px;
-	}
-`;
-
-const Title = styled.h1`
-	font-size: 2.5rem;
-	font-weight: 600;
-	margin: 0;
-	line-height: 1.2;
-`;
-
-const Artist = styled.h2`
-	font-size: 1.25rem;
-	color: #888;
-	margin: 0.5rem 0 0 0;
-`;
-
-const Description = styled.p`
-	font-size: 1.1rem;
-	line-height: 1.8;
-	color: #ddd;
-`;
-
-const MetaGrid = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-	gap: 1.5rem;
-	background: rgba(0, 0, 0, 0.2);
-	padding: 1.5rem;
-	border-radius: 12px;
-`;
-
-const MetaItem = styled.div`
-	h3 {
-		font-size: 0.875rem;
-		color: #888;
-		margin: 0 0 0.5rem 0;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-	p {
-		font-size: 1rem;
-		color: white;
-		margin: 0;
-	}
-`;
-
-const ButtonGroup = styled.div`
-	display: flex;
-	gap: 1rem;
-	margin-top: auto;
-	flex-wrap: wrap;
-`;
-
-const Button = styled(motion.button)`
-	background: rgba(255, 255, 255, 0.1);
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	color: white;
-	padding: 0.75rem 1.5rem;
-	border-radius: 8px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	transition: all 0.2s;
-	font-size: 1rem;
-
-	&:hover {
-		background: rgba(255, 255, 255, 0.2);
-	}
-
-	svg {
-		width: 18px;
-		height: 18px;
-	}
-`;
-
-const CloseButton = styled(motion.button)`
-	position: absolute;
-	top: 1rem;
-	right: 1rem;
-	background: rgba(0, 0, 0, 0.5);
-	border: none;
-	color: white;
-	width: 40px;
-	height: 40px;
-	border-radius: 20px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	z-index: 10;
-
-	&:hover {
-		background: rgba(0, 0, 0, 0.8);
-	}
-`;
 
 export function Details({
 	artwork,
@@ -198,117 +34,138 @@ export function Details({
 
 	return (
 		<AnimatePresence>
-			<Overlay
+			<motion.div
 				initial={{ opacity: 0 }}
 				animate={{ opacity: 1 }}
 				exit={{ opacity: 0 }}
+				className="fixed inset-0 bg-black bg-opacity-95 z-50 flex justify-center items-center p-4"
 				onClick={onClose}
 			>
-				<Container
+				<motion.div
 					initial={{ scale: 0.9, opacity: 0 }}
 					animate={{ scale: 1, opacity: 1 }}
 					exit={{ scale: 0.9, opacity: 0 }}
 					transition={{ type: "spring", duration: 0.5 }}
+					className="w-full max-w-6xl h-[90vh] bg-gray-900 rounded-2xl overflow-hidden relative grid md:grid-cols-[1.2fr,1fr] grid-rows-[auto,1fr] md:grid-rows-1"
 					onClick={(e) => e.stopPropagation()}
 				>
-					<CloseButton
+					<motion.button
 						onClick={onClose}
 						whileHover={{ scale: 1.1 }}
 						whileTap={{ scale: 0.9 }}
+						className="absolute top-4 right-4 bg-black bg-opacity-50 text-white w-10 h-10 rounded-full flex items-center justify-center z-10 hover:bg-opacity-80"
 					>
 						<X size={24} />
-					</CloseButton>
+					</motion.button>
 
-					<ImageSection>
+					<div className="relative bg-gray-950 flex items-center justify-center">
 						<motion.img
 							src={artwork.image}
 							alt={artwork.title}
+							className="max-w-full max-h-full object-contain"
 							initial={{ opacity: 0, scale: 0.8 }}
 							animate={{ opacity: 1, scale: 1 }}
 							transition={{ delay: 0.2 }}
 						/>
-					</ImageSection>
+					</div>
 
-					<InfoSection>
+					<div className="p-8 overflow-y-auto flex flex-col gap-6">
 						<motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: 0.3 }}
 						>
-							<Title>{artwork.title}</Title>
-							<Artist>
+							<h1 className="text-4xl font-semibold text-white">
+								{artwork.title}
+							</h1>
+							<h2 className="text-xl text-gray-400 mt-2">
 								{artwork.artist}, {artwork.year}
-							</Artist>
+							</h2>
 						</motion.div>
 
-						<motion.div
+						<motion.p
+							className="text-lg leading-relaxed text-gray-300"
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: 0.4 }}
 						>
-							<Description>{artwork.description}</Description>
-						</motion.div>
+							{artwork.description}
+						</motion.p>
 
 						<motion.div
+							className="grid grid-cols-2 gap-6 bg-black bg-opacity-20 p-6 rounded-xl"
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: 0.5 }}
 						>
-							<MetaGrid>
-								<MetaItem>
-									<h3>Technique</h3>
-									<p>{artwork.technique || "Mixed Media"}</p>
-								</MetaItem>
-								<MetaItem>
-									<h3>Dimensions</h3>
-									<p>{artwork.dimensions || "100 x 100 cm"}</p>
-								</MetaItem>
-								<MetaItem>
-									<h3>Medium</h3>
-									<p>{artwork.medium || "Digital"}</p>
-								</MetaItem>
-								{artwork.price && (
-									<MetaItem>
-										<h3>Price</h3>
-										<p>{artwork.price}</p>
-									</MetaItem>
-								)}
-							</MetaGrid>
+							<div>
+								<h3 className="text-sm text-gray-400 uppercase tracking-wider">
+									Technique
+								</h3>
+								<p className="text-white mt-1">
+									{artwork.technique || "Mixed Media"}
+								</p>
+							</div>
+							<div>
+								<h3 className="text-sm text-gray-400 uppercase tracking-wider">
+									Dimensions
+								</h3>
+								<p className="text-white mt-1">{`${artwork.dimensions.width}m × ${artwork.dimensions.height}m`}</p>
+							</div>
+							<div>
+								<h3 className="text-sm text-gray-400 uppercase tracking-wider">
+									Medium
+								</h3>
+								<p className="text-white mt-1">{artwork.medium}</p>
+							</div>
+							{artwork.price && (
+								<div>
+									<h3 className="text-sm text-gray-400 uppercase tracking-wider">
+										Price
+									</h3>
+									<p className="text-white mt-1">{artwork.price}</p>
+								</div>
+							)}
 						</motion.div>
 
-						<ButtonGroup>
-							<Button
+						<div className="flex flex-wrap gap-4 mt-auto">
+							<motion.button
 								onClick={shareArtwork}
 								whileHover={{ scale: 1.05 }}
 								whileTap={{ scale: 0.95 }}
+								className="flex items-center gap-2 bg-white bg-opacity-10 border border-white border-opacity-20 text-white px-6 py-3 rounded-lg hover:bg-opacity-20"
 							>
 								<Share size={18} />
 								Share Artwork
-							</Button>
+							</motion.button>
+
 							{hasPrevious && (
-								<Button
+								<motion.button
 									onClick={onPrevious}
 									whileHover={{ scale: 1.05 }}
 									whileTap={{ scale: 0.95 }}
+									className="flex items-center gap-2 bg-white bg-opacity-10 border border-white border-opacity-20 text-white px-6 py-3 rounded-lg hover:bg-opacity-20"
 								>
 									<ArrowLeft size={18} />
 									Previous
-								</Button>
+								</motion.button>
 							)}
+
 							{hasNext && (
-								<Button
+								<motion.button
 									onClick={onNext}
 									whileHover={{ scale: 1.05 }}
 									whileTap={{ scale: 0.95 }}
+									className="flex items-center gap-2 bg-white bg-opacity-10 border border-white border-opacity-20 text-white px-6 py-3 rounded-lg hover:bg-opacity-20"
 								>
 									Next
 									<ArrowRight size={18} />
-								</Button>
+								</motion.button>
 							)}
-						</ButtonGroup>
-					</InfoSection>
-				</Container>
-			</Overlay>
+						</div>
+					</div>
+				</motion.div>
+			</motion.div>
 		</AnimatePresence>
 	);
 }
