@@ -1,0 +1,18 @@
+// wraname = "zamonwa"
+main = "src/worker.js"
+compatibility_date = "2024-01-01"
+
+[site]
+bucket = "./dist"
+
+[[r2_buckets]]
+binding = "ARTWORK_BUCKET"
+bucket_name = "zamonwa-artwork"
+
+[build]
+command = "npm run build"
+watch_dir = "src"
+
+[env.production]
+route = "zamonwa.ca/*"
+zone_name = "zamonwa.ca"
