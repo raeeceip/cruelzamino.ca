@@ -1,15 +1,21 @@
 name = "zamonwa"
 compatibility_date = "2024-01-01"
 
-# Pages specific config
+# Build output configuration
+[build]
+command = "npm install && npm run build"
+output_dir = "dist"
+
+# Optional: Pages Asset configuration
+[assets]
+build_dir = "dist"
+include = ["**/*"]
+
 [pages]
 build_output_directory = "dist"
 
-# Optional: For R2 integration
-[[pages.r2_buckets]]
+# R2 configuration (if needed)
+[[r2_buckets]]
 binding = "ARTWORK_BUCKET"
 bucket_name = "zamonwa-artwork"
 preview_bucket_name = "zamonwa-artwork-preview"
-
-[build]
-command = "npm install && npm run build"
