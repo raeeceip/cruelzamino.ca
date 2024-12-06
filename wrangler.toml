@@ -16,3 +16,6 @@ watch_dir = "src"
 [env.production]
 route = "zamonwa.com/*"
 zone_name = "zamonwa.com"
+
+[upload]
+format = "modules"

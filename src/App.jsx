@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Layout from "./components/Layout/Layout";
 import Home from "./pages/Home";
-
+import { HelmetProvider } from "react-helmet-async";
 import Works from "./pages/Works";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -24,22 +24,24 @@ function App() {
 	}, []);
 
 	return (
-		<BrowserRouter>
-			<ErrorBoundary>
-				<Preloader isLoading={isLoading} />
-				{!isLoading && (
-					<Layout>
-						<Routes>
-							<Route path="/" element={<Home />} />
-							<Route path="/works" element={<Works />} />
-							<Route path="/works/:id" element={<ProjectDetail />} />
-							<Route path="/about" element={<About />} />
-							<Route path="/contact" element={<Contact />} />
-						</Routes>
-					</Layout>
-				)}
-			</ErrorBoundary>
-		</BrowserRouter>
+		<HelmetProvider>
+			<BrowserRouter>
+				<ErrorBoundary>
+					<Preloader isLoading={isLoading} />
+					{!isLoading && (
+						<Layout>
+							<Routes>
+								<Route path="/" element={<Home />} />
+								<Route path="/works" element={<Works />} />
+								<Route path="/works/:id" element={<ProjectDetail />} />
+								<Route path="/about" element={<About />} />
+								<Route path="/contact" element={<Contact />} />
+							</Routes>
+						</Layout>
+					)}
+				</ErrorBoundary>
+			</BrowserRouter>
+		</HelmetProvider>
 	);
 }
 
