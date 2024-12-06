@@ -4,17 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "preinstall": "npm install --legacy-peer-deps",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "postinstall": "npm install --legacy-peer-deps"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@cloudflare/wrangler": "^1.21.0",
     "@react-three/drei": "^9.119.0",
-    "@react-three/fiber": "^8.17.10",
     "framer-motion": "^11.13.1",
     "framer-motion-3d": "^11.13.1",
     "lucide-react": "^0.461.0",
