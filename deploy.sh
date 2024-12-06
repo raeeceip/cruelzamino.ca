@@ -26,9 +26,15 @@ log() {
 echo "=== Deployment Started $(date) ===" > $LOG_FILE
 log "🚀 Starting deployment to Linode..."
 
-# SSH into the Linode and perform deployment
+# Remove the quotes around ENDSSH to allow variable expansion
 ssh root@$LINODE_IP << ENDSSH
     set -e
+    
+    # Export variables for use in the SSH session
+    export PROJECT_DIR="$PROJECT_DIR"
+    export PUBLIC_DIR="$PUBLIC_DIR"
+    export REPO_URL="$REPO_URL"
+    export DOMAIN="$DOMAIN"
     
     # Stop all web servers to free up ports
     echo "Stopping web servers..."
@@ -43,26 +49,40 @@ ssh root@$LINODE_IP << ENDSSH
     lsof -t -i:80 | xargs kill -9 2>/dev/null || true
     lsof -t -i:443 | xargs kill -9 2>/dev/null || true
     
-    # Setup project directories
-    echo "Setting up project directories..."
-    rm -rf $PROJECT_DIR
-    mkdir -p $PROJECT_DIR
-    mkdir -p $PUBLIC_DIR/assets/artwork
-    mkdir -p $PUBLIC_DIR/assets/collections
+    # Install Certbot if not already installed
+    if ! command -v certbot &> /dev/null; then
+        echo "Installing Certbot..."
+        apt-get update
+        apt-get install -y certbot python3-certbot-nginx
+    fi
+
+    # Setup or update project
+    echo "Updating project..."
+    mkdir -p \${PROJECT_DIR}
     
-    # Clone the repository
-    echo "Cloning repository..."
-    git clone $REPO_URL $PROJECT_DIR
-    cd $PROJECT_DIR
+    if [ -d "\${PROJECT_DIR}/.git" ]; then
+        echo "Repository exists, pulling updates..."
+        cd \${PROJECT_DIR}
+        git fetch origin
+        git reset --hard origin/main
+    else
+        echo "Fresh clone required..."
+        rm -rf \${PROJECT_DIR}
+        git clone \${REPO_URL} \${PROJECT_DIR}
+        cd \${PROJECT_DIR}
+    fi
+
+    # Create necessary directories
+    mkdir -p \${PUBLIC_DIR}/assets/artwork
+    mkdir -p \${PUBLIC_DIR}/assets/collections
+    mkdir -p \${PUBLIC_DIR}/assets/icons
     
     # Copy assets to public directory
-    echo "Setting up assets..."
-    cp -r src/assets/images/artwork/* $PUBLIC_DIR/assets/artwork/
-    cp -r src/assets/images/collections/* $PUBLIC_DIR/assets/collections/
-    
-    # Update data.js to use new asset paths
-    echo "Updating data.js configuration..."
-    sed -i 's|/src/assets/images/|/assets/|g' src/data.js
+    echo "Copying assets..."
+    cp -r src/assets/images/artwork/* \${PUBLIC_DIR}/assets/artwork/ || true
+    cp -r src/assets/icons/* \${PUBLIC_DIR}/assets/icons/ || true
+    cp src/favicon.ico \${PUBLIC_DIR}/ || true
+    cp src/manifest.json \${PUBLIC_DIR}/ || true
     
     # Install dependencies and build
     echo "Installing dependencies..."
@@ -72,49 +92,84 @@ ssh root@$LINODE_IP << ENDSSH
     echo "Building application..."
     npm run build
     
+    # Move build assets to public directory
+    echo "Moving build assets..."
+    cp -r dist/* \${PUBLIC_DIR}/
+
+    # Obtain SSL certificate
+    echo "Obtaining SSL certificate..."
+    certbot certonly --standalone \
+        --non-interactive \
+        --agree-tos \
+        --email admin@zamonwa.com \
+        --domains \${DOMAIN},www.\${DOMAIN} \
+        --keep-until-expiring
+    
     # Configure Caddy
     echo "Configuring Caddy..."
     cat > /etc/caddy/Caddyfile << EOF
 {
     admin off
-    auto_https off  # Temporarily disable HTTPS to test basic connectivity
+    email admin@zamonwa.com
 }
 
-:80 {
-    root * $PROJECT_DIR/dist
+\${DOMAIN} {
+    root * \${PUBLIC_DIR}
     
-    # Serve static assets from public directory
-    handle /assets/* {
-        root * $PUBLIC_DIR
-        file_server
+    # Enable compression
+    encode gzip
+    
+    # Log all requests
+    log {
+        output file /var/log/caddy/access.log
+        format console
     }
     
-    # Serve application
+    # Handle all requests
     handle {
         try_files {path} /index.html
         file_server
     }
+    
+    # Handle errors
+    handle_errors {
+        respond "404 - Page not found" 404
+    }
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; connect-src 'self' https:;"
+    }
+}
+
+# Redirect www to non-www
+www.\${DOMAIN} {
+    redir https://\${DOMAIN}{uri} permanent
 }
 EOF
 
+    # Create log directory for Caddy
+    mkdir -p /var/log/caddy
+    
     # Set permissions
     echo "Setting permissions..."
-    chown -R caddy:caddy $PROJECT_DIR
-    chmod -R 755 $PROJECT_DIR
+    chown -R caddy:caddy \${PROJECT_DIR}
+    chown -R caddy:caddy \${PUBLIC_DIR}
+    chown -R caddy:caddy /var/log/caddy
+    chmod -R 755 \${PROJECT_DIR}
+    chmod -R 755 \${PUBLIC_DIR}
     chown caddy:caddy /etc/caddy/Caddyfile
     
-    # Make sure Caddy service is completely stopped
-    echo "Ensuring Caddy is stopped..."
-    systemctl stop caddy || true
-    pkill caddy || true
-    sleep 2
+    # Validate Caddy configuration
+    echo "Validating Caddy configuration..."
+    caddy validate --config /etc/caddy/Caddyfile
     
-    # Verify ports are free
-    echo "Checking port availability..."
-    netstat -tulpn | grep -E ':80|:443' || echo "Ports are free"
-    
-    # Start Caddy service
-    echo "Starting Caddy service..."
+    # Restart Caddy
+    echo "Restarting Caddy..."
     systemctl restart caddy
     sleep 5
     
@@ -122,6 +177,11 @@ EOF
     if systemctl is-active --quiet caddy; then
         echo "✅ Caddy service started successfully"
         systemctl status caddy --no-pager
+        
+        # List files in public directory for verification
+        echo "Verifying files in public directory:"
+        ls -la \${PUBLIC_DIR}
+        ls -la \${PUBLIC_DIR}/assets
     else
         echo "❌ Caddy failed to start. Checking logs..."
         journalctl -xe --unit=caddy --no-pager
@@ -131,30 +191,20 @@ EOF
     # Test local access
     echo "Testing local access..."
     curl -I http://localhost || echo "Unable to reach localhost"
-    
-    # Verify assets are accessible
-    echo "Testing asset accessibility..."
-    curl -I http://localhost/assets/artwork/for-your-mind.jpg || echo "Unable to access test asset"
-    
-    # Print port usage for debugging
-    echo "Current port usage:"
-    netstat -tulpn | grep -E ':80|:443' || echo "No processes on ports 80/443"
+
+    # Setup auto-renewal for SSL certificate
+    echo "Setting up SSL auto-renewal..."
+    echo "0 0,12 * * * root python -c 'import random; import time; time.sleep(random.random() * 3600)' && certbot renew -q" | sudo tee -a /etc/crontab > /dev/null
+
 ENDSSH
-
-# Final checks
-log "🔍 Performing final checks..."
-
-echo "Testing HTTP access..."
-curl -I -s http://$DOMAIN || echo "HTTP not yet accessible"
 
 log "Deployment completed! Check $LOG_FILE for details."
 
 echo "
 Next steps:
-1. Verify the site is accessible via HTTP at http://$DOMAIN
-2. Check that assets are loading correctly
-3. If everything works, we can enable HTTPS by updating the Caddy configuration
-4. Make sure these DNS records are set:
-   - A record for $DOMAIN points to $LINODE_IP
-   - A record for www.$DOMAIN points to $LINODE_IP
-"
+1. Verify the site is accessible at https://zamonwa.com
+2. Check that all assets are loading correctly
+3. Check the Caddy logs if there are any issues:
+   ssh root@$LINODE_IP 'tail -f /var/log/caddy/access.log'
+4. Verify SSL certificate is working: 
+   ssh
