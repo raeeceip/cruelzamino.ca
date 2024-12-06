@@ -1,3 +1,6 @@
+// Base URL for assets
+const ASSET_BASE_URL = '/assets';
+
 export const ARTWORKS = [
     {
       id: 'apostasy',
@@ -10,7 +13,7 @@ export const ARTWORKS = [
       dimensions: { width: 2, height: 2 },
       medium: 'Digital Art',
       category: 'The Pilgrimage of the Self',
-      image: '/src/assets/images/artwork/apostasy.jpg',
+      image: `${ASSET_BASE_URL}/artwork/apostasy.jpg`,
       position: [-6, 1.5, -5]
     },
     {
@@ -24,7 +27,7 @@ export const ARTWORKS = [
       dimensions: { width: 2, height: 2 },
       medium: 'Digital Art',
       category: 'The Pilgrimage of the Self',
-      image: '/src/assets/images/artwork/for-your-mind.jpg',
+      image: `${ASSET_BASE_URL}/artwork/for-your-mind.jpg`,
       position: [0, 1.5, -5]
     },
     {
@@ -38,7 +41,7 @@ export const ARTWORKS = [
       dimensions: { width: 2, height: 2 },
       medium: 'Digital Art',
       category: 'The Creed of a True Fraud',
-      image: '/src/assets/images/artwork/gemini-flame.jpg',
+      image: `${ASSET_BASE_URL}/artwork/gemini-flame.jpg`,
       position: [6, 1.5, -5]
     },
     {
@@ -52,7 +55,7 @@ export const ARTWORKS = [
       dimensions: { width: 2, height: 2 },
       medium: 'Digital Art',
       category: 'The Creed of a True Fraud',
-      image: '/src/assets/images/artwork/purple-man.jpg',
+      image: `${ASSET_BASE_URL}/artwork/purple-man.jpg`,
       position: [-6, 1.5, 2]
     },
     {
@@ -66,36 +69,37 @@ export const ARTWORKS = [
       dimensions: { width: 2, height: 2 },
       medium: 'Digital Art',
       category: 'The Pilgrimage of the Self',
-      image: '/src/assets/images/artwork/infinit-ey.jpg',
+      image: `${ASSET_BASE_URL}/artwork/infinit-ey.jpg`,
       position: [0, 1.5, 2]
     }
-  ];
-  
+];
+
 export const COLLECTIONS = [
     {
       id: 'creed',
       title: 'The Creed of a True Fraud',
       year: '2022',
       description: 'This collection follows the different emotions Zam faces in their experience of being a queer Nigerian artist in the diaspora that lives with anxiety. These pieces follow the emotions of skepticism, anger, jealousy and sadness that Zam faces with regards to their identity.',
-      coverImage: '/src/assets/images/collections/creed-cover.jpg'
+      coverImage: `${ASSET_BASE_URL}/collections/creed-cover.jpg`
     },
     {
       id: 'pilgrimage',
       title: 'The Pilgrimage of the Self',
       year: '2023',
       description: 'Through five pieces - "For Your Mind," "Apostasy," "Infinit(e/y)," "A Fall From Grace," and "The Odyssey" - the collection chronicles the stages of religious exodus and personal rebirth.',
-      coverImage: '/src/assets/images/collections/pilgrimage-cover.jpg'
+      coverImage: `${ASSET_BASE_URL}/collections/pilgrimage-cover.jpg`
     },
     {
       id: 'wahala',
       title: 'Wahala Dey',
       year: '2024',
       description: 'A work in progress collection of stories exploring the layered stories, struggles, and spirit of Nigeria and its people.',
-      coverImage: '/src/assets/images/collections/wahala-cover.jpg'
+      coverImage: `${ASSET_BASE_URL}/collections/wahala-cover.jpg`
     }
-  ];
-  
-  export const ARTIST_INFO = {
+];
+
+// Rest of the exports remain the same
+export const ARTIST_INFO = {
     name: 'Zam Eze-Onwa',
     title: 'Creative',
     location: {
@@ -111,17 +115,16 @@ export const COLLECTIONS = [
       instagram: '#',
       twitter: '#'
     }
-  };
+};
 
-  
-  export const NAVIGATION_LINKS = [
+export const NAVIGATION_LINKS = [
     { name: 'Works', path: '/works' },
     { name: 'About', path: '/about' },
     { name: 'Contact', path: '/contact' }
-  ];
-  
-  export const SOCIAL_LINKS = [
+];
+
+export const SOCIAL_LINKS = [
     { name: 'Instagram', url: '#' },
     { name: 'Twitter', url: '#' },
     { name: 'Email', url: 'mailto:zamonwa@gmail.com' }
-  ];
+];
