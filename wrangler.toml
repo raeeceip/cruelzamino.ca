@@ -1,21 +1,16 @@
 name = "zamonwa"
 compatibility_date = "2024-01-01"
 
-# Build output configuration
 [build]
-command = "npm install && npm run build"
+command = "npm install --legacy-peer-deps && npm run build"
 output_dir = "dist"
 
-# Optional: Pages Asset configuration
-[assets]
-build_dir = "dist"
-include = ["**/*"]
+[site]
+bucket = "./dist"
 
 [pages]
 build_output_directory = "dist"
 
-# R2 configuration (if needed)
 [[r2_buckets]]
 binding = "ARTWORK_BUCKET"
 bucket_name = "zamonwa-artwork"
-preview_bucket_name = "zamonwa-artwork-preview"
