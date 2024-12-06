@@ -7,24 +7,19 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     rollupOptions: {
+      external: [/@rollup\/rollup-linux-*/],  // Exclude problematic rollup binaries
       output: {
         manualChunks: {
-          'vendor': [
-            'react',
-            'react-dom',
-            'react-router-dom',
-            'three',
-            '@react-three/fiber',
-            '@react-three/drei'
-          ]
+          vendor: ['react', 'react-dom', 'three'],
+          routing: ['react-router-dom'],
+          three: ['@react-three/fiber', '@react-three/drei']
         }
       }
-    }
+    },
+    target: 'esnext',
+    sourcemap: true
   },
-  resolve: {
-    extensions: ['.js', '.jsx', '.json']
-  },
-  server: {
-    port: 3000
+  optimizeDeps: {
+    exclude: ['@rollup/rollup-linux-x64-gnu']
   }
 });
