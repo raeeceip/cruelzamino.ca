@@ -112,7 +112,7 @@ export const ARTIST_INFO = {
       phone: '(613) 869-9674'
     },
     social: {
-      instagram: '#',
+      instagram: 'https://www.instagram.com/cruelzamino',
       twitter: '#'
     }
 };
