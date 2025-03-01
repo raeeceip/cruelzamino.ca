@@ -1,15 +1,15 @@
-import { BrowserRouter } from "react-router-dom";
-import { Routes, Route } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { HelmetProvider } from "react-helmet-async";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Layout from "./components/Layout/Layout";
-import Home from "./pages/Home";
-import { HelmetProvider } from "react-helmet-async";
-import Works from "./pages/Works";
+import Preloader from "./components/Preloader";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Hair from "./pages/Hair";
+import Home from "./pages/Home";
 import ProjectDetail from "./pages/ProjectDetail";
-import Preloader from "./components/Preloader";
+import Works from "./pages/Works";
 
 function App() {
 	const [isLoading, setIsLoading] = useState(true);
@@ -36,6 +36,7 @@ function App() {
 								<Route path="/works/:id" element={<ProjectDetail />} />
 								<Route path="/about" element={<About />} />
 								<Route path="/contact" element={<Contact />} />
+								<Route path="/hair-bookings" element={<Hair />} />
 							</Routes>
 						</Layout>
 					)}
